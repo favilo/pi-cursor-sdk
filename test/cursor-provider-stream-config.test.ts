@@ -59,8 +59,9 @@ describe("streamCursor prompt and model config", () => {
 		await collectEvents(streamCursor(makeModel("gpt-5.5@1m"), makeContext(), { apiKey: "test-key" }));
 
 		const local = mockedCreate.mock.calls[0][0].local;
-		expect(local).toMatchObject({ cwd: process.cwd(), settingSources: ["all"], store: expect.any(Object) });
-		expect(mockedCreate.mock.calls[0][0]).not.toHaveProperty("tools");
+		expect(local).toMatchObject({ cwd: process.cwd(), store: expect.any(Object) });
+		expect(local).not.toHaveProperty("settingSources");
+		expect(mockedCreate.mock.calls[0][0]).toHaveProperty("tools", ["mcp"]);
 		expect(local).not.toHaveProperty("autoReview");
 		expect(local).not.toHaveProperty("sandboxOptions");
 	});
@@ -526,11 +527,11 @@ describe("streamCursor prompt and model config", () => {
 		expect(sentMessage.text).toContain("Cursor SDK tool boundary:");
 		expect(sentMessage.text).toContain("Call only Cursor SDK/MCP tools exposed in this run");
 		expect(sentMessage.text).toContain("Callable tool surfaces this run:");
-		expect(sentMessage.text).toContain("Cursor host/MCP");
+		expect(sentMessage.text).toContain("Cursor native tools (including task/subagents): disabled");
 		expect(sentMessage.text).not.toContain("Bridged pi tools:");
 		expect(sentMessage.text).not.toContain("Pi bridge");
-		expect(sentMessage.text).not.toContain("Use pi__cursor_ask_question");
-		expect(sentMessage.text).not.toContain("prefer matching exposed pi__* tools");
+		expect(sentMessage.text).not.toContain("Use cursor_ask_question");
+		expect(sentMessage.text).not.toContain("Use the exposed Pi tools by their listed names");
 	});
 
 	it("caches SDK checkpoint context windows after successful runs", async () => {

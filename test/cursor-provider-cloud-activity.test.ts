@@ -138,7 +138,7 @@ describe("cloud provider captured activity callbacks", () => {
 		expect(trace).toContain("Inspect normalized cloud activity");
 		expect(collectTextDeltas(events)).toBe("CLOUD_ACTIVITY_FIXTURE_OK");
 		expect(trace.length).toBeLessThan(2_000);
-		expect(trace).not.toContain("pi__");
+		expect(trace).not.toContain("Pi bridge");
 		expect(events.length).toBeLessThan(40);
 		expect(events.filter(isCursorToolStreamEvent)).toHaveLength(0);
 		expect(done.reason).toBe("stop");
@@ -159,7 +159,7 @@ describe("cloud provider captured activity callbacks", () => {
 		expect(renderedText).toContain("cloud-shell-ok");
 		expect(renderedText).toContain("Inspect normalized cloud activity");
 		expect(renderedText).toContain("CLOUD_ACTIVITY_FIXTURE_OK");
-		expect(renderedText).not.toContain("pi__");
+		expect(renderedText).not.toContain("Pi bridge");
 		expect(renderedText).not.toMatch(/native.?replay|toolCall|toolUse/i);
 	});
 });

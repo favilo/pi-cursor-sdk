@@ -284,7 +284,7 @@ try {
   assert(lines.some(line => line.includes('"name": "pi-cursor-sdk"')));
   assert(assertRequiredCards(".", detectCards(lines), ["read", "bridge-read-success", "bridge-read-failure"]).every(c => c.ok));
 } finally { term.dispose(); }
-assert.equal(detectCards(['1. call pi__read on ./package.json', 'read ./other.json']).length, 0);
+assert.equal(detectCards(['1. call read on ./package.json', 'read ./other.json']).length, 0);
 console.log("captured-osc8-read-cards-ok");
 `;
 		const result = run(process.execPath, ["--input-type=module", "-e", code]);
@@ -322,7 +322,7 @@ try {
 		const code = String.raw`
 import { detectCards, assertRequiredCards } from "./scripts/platform-smoke/card-detect.mjs";
 import { isSafeBundlePath } from "./scripts/platform-smoke/targets.mjs";
-const promptOnly = detectCards(["1. call pi__read on ./package.json", "2. grep ./README.md"]);
+const promptOnly = detectCards(["1. call read on ./package.json", "2. grep ./README.md"]);
 const rendered = detectCards("read /workspace/pi-cursor-sdk/package.json\ngrep /pi-cursor-sdk/ in C:/workspace/README.md\nbridge visual smoke\nENOENT: no such file or directory\ncursor:local · fast:off · http1\ngrok-4.6\n".split("\n"));
 const wrapped = detectCards(["read /workspace/very-long-test-workspace/package.js", "on"]);
 const wrappedMidToken = detectCards(["read /workspace/very-long-test-workspace/package.j", "son"]);
@@ -544,7 +544,7 @@ const positive = findVisualEvidenceItems([
   { id: "failure", pattern: "^\\s*native shell failure\\s*$" },
 ]);
 const promptOnly = findVisualEvidenceItems([
-  "1. call pi__read on ./package.json",
+  "1. call read on ./package.json",
 ], [
   { id: "read", pattern: "^\\s*read \\./package\\.json" },
 ]);

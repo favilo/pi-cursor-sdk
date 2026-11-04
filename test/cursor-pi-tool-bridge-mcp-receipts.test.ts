@@ -69,7 +69,7 @@ describe("installed MCP server initialization and catalog diagnostic receipts", 
 			expect(receipts(run.id)).toHaveLength(1);
 
 			const listed = await client.listTools();
-			expect(listed.tools.map((tool) => tool.name)).toEqual(["pi__subagent"]);
+			expect(listed.tools.map((tool) => tool.name)).toEqual(["subagent"]);
 			expect(receipts(run.id)).toEqual([
 				{ event: "mcp_initialized", runId: run.id },
 				{ event: "mcp_tools_list", runId: run.id, toolCount: 1 },
@@ -77,7 +77,7 @@ describe("installed MCP server initialization and catalog diagnostic receipts", 
 			expect(receipts(otherRun.id)).toEqual([]);
 
 			const cancelledCall = client.callTool({
-				name: "pi__subagent", arguments: { task: "private-request-argument" },
+				name: "subagent", arguments: { task: "private-request-argument" },
 			}).catch((error: unknown) => error);
 			await vi.waitFor(() => expect(records()).toContainEqual(expect.objectContaining({
 				event: "request_queued", runId: run.id,

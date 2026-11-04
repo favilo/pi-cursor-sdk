@@ -200,7 +200,7 @@ describe("cursor live run coordinator", () => {
 					bridgeCallId: `call-${piToolCallId}`,
 					piToolCallId,
 					piToolName: "read",
-					mcpToolName: "pi__read",
+					mcpToolName: "read",
 					args: {},
 				},
 			});
@@ -229,7 +229,7 @@ describe("cursor live run coordinator", () => {
 				bridgeCallId: "expired-call",
 				piToolCallId: "expired-tool",
 				piToolName: "read",
-				mcpToolName: "pi__read",
+				mcpToolName: "read",
 				args: {},
 			},
 		});
@@ -464,7 +464,7 @@ describe("cursor live run coordinator", () => {
 			await client.connect(transport);
 			vi.useFakeTimers();
 			const calls = ["slow_tool", "cursor_ask_question"].map((name) =>
-				client.callTool({ name: `pi__${name}`, arguments: {} }, { timeout: 3_600_000 }).catch((error: unknown) => error),
+				client.callTool({ name: `${name}`, arguments: {} }, { timeout: 3_600_000 }).catch((error: unknown) => error),
 			);
 			await vi.waitFor(() => expect(requests).toHaveLength(2), { interval: 1 });
 			run = startRun(coordinator, { bridgeRun, sessionBridgeRun: bridgeRun });

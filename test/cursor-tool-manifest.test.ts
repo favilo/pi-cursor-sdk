@@ -13,21 +13,21 @@ describe("cursor-tool-manifest", () => {
 				tools: [
 					{
 						piToolName: "cursor_ask_question",
-						mcpToolName: "pi__cursor_ask_question",
+						mcpToolName: "cursor_ask_question",
 						description: "ask",
 						inputSchema: { type: "object" },
 						sourceInfo: { source: "extension", path: "test", scope: "temporary", origin: "top-level" },
 					},
 				],
-				mcpToolNameToPiToolName: new Map([["pi__cursor_ask_question", "cursor_ask_question"]]),
-				piToolNameToMcpToolName: new Map([["cursor_ask_question", "pi__cursor_ask_question"]]),
+				mcpToolNameToPiToolName: new Map([["cursor_ask_question", "cursor_ask_question"]]),
+				piToolNameToMcpToolName: new Map([["cursor_ask_question", "cursor_ask_question"]]),
 			},
 		});
 
 		expect(text).toContain("Callable tool surfaces this run:");
 		expect(text).toContain("Cursor host/MCP");
 		expect(text).toContain("Pi tool toggles affect pi tools/bridge exposure only");
-		expect(text).toContain("pi__cursor_ask_question");
+		expect(text).toContain("cursor_ask_question");
 		expect(text).toContain("cursor-replay-*");
 	});
 
@@ -39,7 +39,7 @@ describe("cursor-tool-manifest", () => {
 				tools: [
 					{
 						piToolName: "cursor_ask_question",
-						mcpToolName: "pi__cursor_ask_question",
+						mcpToolName: "cursor_ask_question",
 						description: "ask",
 						inputSchema: { type: "object" },
 						sourceInfo: { source: "extension", path: "test", scope: "temporary", origin: "top-level" },
@@ -54,7 +54,7 @@ describe("cursor-tool-manifest", () => {
 		expect(text).toContain("Cursor host/MCP");
 		expect(text).toContain("configured MCP depends on Cursor settings");
 		expect(text).not.toContain("Pi bridge");
-		expect(text).not.toContain("pi__cursor_ask_question");
+		expect(text).not.toContain("cursor_ask_question");
 	});
 
 	it("distinguishes disabled bridge from empty exposure", () => {
@@ -62,7 +62,7 @@ describe("cursor-tool-manifest", () => {
 		const empty = buildCursorToolManifestText({ piBridgeEnabled: true, bridgeSnapshot: { tools: [], mcpToolNameToPiToolName: new Map(), piToolNameToMcpToolName: new Map() } });
 		expect(disabled).toContain("Pi bridge: disabled");
 		expect(disabled).not.toContain("SwitchMode");
-		expect(empty).toContain("no pi__* tools exposed");
+		expect(empty).toContain("no Pi tools exposed");
 	});
 
 	it("describes MCP-only without advertising host tools", () => {

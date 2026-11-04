@@ -104,6 +104,7 @@ describe("registerCursorSkillTool", () => {
 		delete process.env.PI_CURSOR_SKILL_TOOL;
 		const pi = createPiHarness({ activeTools: ["read"] });
 		registerCursorSkillTool(pi);
+		expect(pi._activeToolNames()).toEqual(["read"]);
 		const event = {
 			type: "before_agent_start",
 			messageType: "user",

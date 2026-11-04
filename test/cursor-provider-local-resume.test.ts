@@ -36,8 +36,8 @@ describe("streamCursor local resume", () => {
 		// Historical handle bytes for this fixture, independent of the current pool-key builder.
 		const poolKey = [scopeKey, process.cwd(),
 			'{"id":"gpt-5.5","params":[{"id":"context","value":"1m"},{"id":"fast","value":"false"},{"id":"reasoning","value":"none"}]}',
-			"all", '{"autoReview":false,"sandboxEnabled":false}', "http1:default", "62af8704764faf8e",
-			getRegisteredCursorPiToolBridge()?.getToolSurfaceSignature() ?? "bridge:absent"].join("\0");
+			"", '{"autoReview":false,"sandboxEnabled":false}', "http1:default", "62af8704764faf8e",
+			getRegisteredCursorPiToolBridge()?.getToolSurfaceSignature() ?? "bridge:absent", "tools:mcp-only"].join("\0");
 		resumeTestUtils.set({
 			scopeKey,
 			sessionFile: scopeKey,
@@ -97,7 +97,7 @@ describe("streamCursor local resume", () => {
 		const prompt = mockSend.mock.calls[0]?.[0] as { text?: string };
 		expect(prompt.text).toContain("User: Follow up");
 		expect(prompt.text).toContain("User: Hello");
-		expect(prompt.text).toContain("prefer matching exposed pi__* tools using their listed names, schemas, and prompt guidelines");
+		expect(prompt.text).toContain("Use only exposed Pi tools by their listed names");
 	});
 
 	it.each([

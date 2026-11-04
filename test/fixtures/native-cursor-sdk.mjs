@@ -134,7 +134,7 @@ export const Agent = {
                 await client.connect(transport);
                 const catalog = await client.listTools();
                 state.bridgeCatalog = catalog.tools.map((tool) => tool.name);
-                const args = { providerIdentifier: "pi_tools", toolName: "pi__fixture_bridge", args: { value: "bridge value" } };
+                const args = { providerIdentifier: "pi_tools", toolName: "fixture_bridge", args: { value: "bridge value" } };
                 const callId = `${id}-bridge`;
                 const modelCallId = `${callId}-model`;
                 sendOptions.onDelta({ update: { type: "tool-call-started", callId, modelCallId, toolCall: { type: "mcp", args } } });

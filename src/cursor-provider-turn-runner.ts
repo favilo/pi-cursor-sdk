@@ -74,7 +74,7 @@ export class CursorProviderTurnRunner {
 			// prepare dispatch below always act on the same config snapshot.
 			const resolvedConfig = resolveCursorProviderTurnConfig(cwd, scope.projectTrusted, scope.scopeKey);
 			this.runtimeTarget = resolvedConfig.runtime.value;
-			const nativeToolsEnabled = resolveCursorNativeToolsEnabled();
+			const nativeToolsEnabled = resolveCursorNativeToolsEnabled(process.env, this.runtimeTarget);
 			assertCursorNativeToolsRuntime(this.runtimeTarget, nativeToolsEnabled);
 			this.sdkEventDebug = CursorSdkEventDebugSink.maybeCreate({
 				cwd,

@@ -42,8 +42,8 @@ describe("cursor pi tool bridge debug safety", () => {
 		const transport = new StreamableHTTPClientTransport(new URL(getCursorPiBridgeMcpUrl(run)));
 		await client.connect(transport);
 		try {
-			expect((await client.listTools()).tools.map((tool) => tool.name)).toEqual(["pi__read"]);
-			const callPromise = client.callTool({ name: "pi__read", arguments: { path: "README.md" } });
+			expect((await client.listTools()).tools.map((tool) => tool.name)).toEqual(["read"]);
+			const callPromise = client.callTool({ name: "read", arguments: { path: "README.md" } });
 			const request = await waitForQueuedRequest(run);
 			await run.resolveToolResultsFromContext({
 				systemPrompt: "",

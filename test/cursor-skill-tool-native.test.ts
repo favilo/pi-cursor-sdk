@@ -41,7 +41,7 @@ async function createNativeSkillSession(
 		settingsManager: SettingsManager.inMemory({ compaction: { enabled: false }, retry: { enabled: false } }),
 		resourceLoaderOptions: {
 			noExtensions: true, noSkills: true, noPromptTemplates: true, noThemes: true, noContextFiles: true,
-			extensionFactories: [registerCursorSkillTool],
+			extensionFactories: [(pi) => registerCursorSkillTool(pi, { PI_CURSOR_SKILL_TOOL: "1" })],
 			skillsOverride: () => ({ skills, diagnostics: [] }),
 		},
 	});
@@ -100,7 +100,7 @@ it("keeps native Pi prompts stable after lazy skill activation without losing th
 		expect(content).toContain("Follow the proof skill instructions.");
 		expect(content).toContain(`Skill directory: ${skill.baseDir}`);
 		expect(getCurrentTools(captured[0].messages).find((tool) => tool.name === "cursor_activate_skill")?.description).toContain("Load full pi Agent Skill instructions");
-		expect(getCurrentSystemPrompt(captured[0].messages)).toContain("call pi__cursor_activate_skill with the skill name");
+		expect(getCurrentSystemPrompt(captured[0].messages)).toContain("call cursor_activate_skill with the skill name");
 		expect(getCurrentSystemPrompt(captured[2].messages)).toBe(getCurrentSystemPrompt(captured[0].messages));
 		expect(planCursorSessionSend({
 			bootstrapped: true, incrementalSendCount: 0,

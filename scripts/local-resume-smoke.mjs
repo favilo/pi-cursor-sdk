@@ -208,7 +208,7 @@ async function runSafetySmoke() {
 }
 
 function longRunningAbortPrompt(markerDir) {
-	return `Call pi__bash with command:
+	return `Call bash with command:
 node -e "const fs=require('fs');fs.mkdirSync('${markerDir}',{recursive:true});fs.writeFileSync('${markerDir}/started.txt',String(process.pid));setTimeout(()=>console.log('LOCAL_RESUME_ABORT_SHOULD_NOT_PRINT'),30000)"
 
 Do not answer until the tool completes.`;

@@ -56,7 +56,7 @@ describe("prepareCursorSessionForCompaction", () => {
 		const transport = new StreamableHTTPClientTransport(new URL(getCursorPiBridgeMcpUrl(bridgeRun)));
 		try {
 			await client.connect(transport);
-			const call = client.callTool({ name: "pi__slow_tool", arguments: {} }).catch(error => error);
+			const call = client.callTool({ name: "slow_tool", arguments: {} }).catch(error => error);
 			await vi.waitFor(() => expect(requests).toHaveLength(1), { interval: 1 });
 			cursorLiveRuns.requestIdleDispose(liveRun);
 			expect(bridgeRun.hasPendingToolCalls()).toBe(true);

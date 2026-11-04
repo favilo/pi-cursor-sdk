@@ -322,7 +322,7 @@ describe("streamCursor Cursor tool lifecycle", () => {
 					type: "tool-call-started",
 					toolCall: {
 						name: "mcp",
-						args: { toolName: "pi__sem_reindex", description: "bridge semantic reindex should stay silent" },
+						args: { toolName: "sem_reindex", description: "bridge semantic reindex should stay silent" },
 					},
 					callId: "bridge-mcp-1",
 				},
@@ -333,7 +333,7 @@ describe("streamCursor Cursor tool lifecycle", () => {
 					type: "tool-call-completed",
 					toolCall: {
 						name: "mcp",
-						args: { toolName: "pi__sem_reindex" },
+						args: { toolName: "sem_reindex" },
 						result: { status: "success", value: { content: [{ type: "text", text: "ok" }] } },
 					},
 					callId: "bridge-mcp-1",

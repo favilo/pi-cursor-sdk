@@ -13,7 +13,7 @@ import { getScenario } from "../scripts/platform-smoke/scenarios.mjs";
 test("rendered xterm cards survive ANSI redraw and reject prompt-only or missing-render evidence", async () => {
 	const root = mkdtempSync(join(tmpdir(), "platform-rendered-cards-"));
 	const spec = getScenario("cursor-bridge-visual-matrix").visualEvidence.find(item => item.id === "bridge-shell-success");
-	const prompt = "1. call pi__bash with command: node -e \"console.log('bridge visual smoke')\"\r\n";
+	const prompt = "1. call bash with command: node -e \"console.log('bridge visual smoke')\"\r\n";
 	try {
 		const ansi = prompt + "\x1b[36m" + "rendered padding\r\n".repeat(25) +
 			"footer and spinner\r\x1b[2Kbridge visual smoke\x1b[0m\r\n";

@@ -60,7 +60,7 @@ describe("cursor pi tool bridge CallTool deadline", () => {
 		const transport = new StreamableHTTPClientTransport(new URL(getCursorPiBridgeMcpUrl(bridge)));
 		await client.connect(transport);
 		try {
-			const call = client.callTool({ name: "pi__bash", arguments: { command: "held by human" } });
+			const call = client.callTool({ name: "bash", arguments: { command: "held by human" } });
 			const request = await waitForQueuedRequest(bridge);
 			vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
 			coordinator.requestIdleDispose(run);
@@ -103,7 +103,7 @@ describe("cursor pi tool bridge CallTool deadline", () => {
 		run.setOnToolRequest(queued.resolve);
 		try {
 			vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
-			const callResult = client.callTool({ name: "pi__bash", arguments: { command: "sleep 30" } }).catch((error: unknown) => error);
+			const callResult = client.callTool({ name: "bash", arguments: { command: "sleep 30" } }).catch((error: unknown) => error);
 			const request = await queued.promise;
 			const abort = vi.fn();
 			await pi.runToolCall(
@@ -144,7 +144,7 @@ describe("cursor pi tool bridge CallTool deadline", () => {
 		try {
 			const clientAbort = new AbortController();
 			const callResult = client.callTool(
-				{ name: "pi__bash", arguments: { command: "sleep 30" } },
+				{ name: "bash", arguments: { command: "sleep 30" } },
 				{ signal: clientAbort.signal },
 			).catch((error: unknown) => error);
 			const request = await waitForQueuedRequest(run);
@@ -182,7 +182,7 @@ describe("cursor pi tool bridge CallTool deadline", () => {
 		run.setOnToolRequest(queued.resolve);
 		try {
 			vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
-			const callResult = client.callTool({ name: "pi__bash", arguments: { command: "sleep 30" } }).catch((error: unknown) => error);
+			const callResult = client.callTool({ name: "bash", arguments: { command: "sleep 30" } }).catch((error: unknown) => error);
 			const request = await queued.promise;
 			await vi.advanceTimersByTimeAsync(500);
 			vi.useRealTimers();
@@ -216,7 +216,7 @@ describe("cursor pi tool bridge CallTool deadline", () => {
 		const transport = new StreamableHTTPClientTransport(new URL(getCursorPiBridgeMcpUrl(run)));
 		await client.connect(transport);
 		try {
-			const callPromise = client.callTool({ name: "pi__bash", arguments: { command: "echo ok" } });
+			const callPromise = client.callTool({ name: "bash", arguments: { command: "echo ok" } });
 			const request = await waitForQueuedRequest(run);
 
 			const hookResult = await pi.runToolCall(
@@ -269,7 +269,7 @@ describe("cursor pi tool bridge CallTool deadline", () => {
 		const transport = new StreamableHTTPClientTransport(new URL(getCursorPiBridgeMcpUrl(run)));
 		await client.connect(transport);
 		try {
-			const callResult = client.callTool({ name: "pi__bash", arguments: { command: "sleep 30" } }).catch((error: unknown) => error);
+			const callResult = client.callTool({ name: "bash", arguments: { command: "sleep 30" } }).catch((error: unknown) => error);
 			const request = await waitForQueuedRequest(run);
 			const abort = vi.fn();
 			await pi.runToolCall(

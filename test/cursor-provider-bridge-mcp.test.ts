@@ -124,7 +124,7 @@ describe("streamCursor bridge MCP", () => {
 		const createOptions = getCreatedAgentOptions();
 		const { client, transport } = await connectMcpClient(getPiToolsMcpUrlFromAgentCreateOptions(createOptions));
 		try {
-			const callPromise = client.callTool({ name: "pi__read", arguments: { path: "README.md" } });
+			const callPromise = client.callTool({ name: "read", arguments: { path: "README.md" } });
 			const error = await callPromise.catch((callError: unknown) => callError);
 			expect(error).toBeInstanceOf(Error);
 			expect((error as Error).message).toMatch(/no active live run|MCP error/i);
@@ -186,9 +186,9 @@ describe("streamCursor bridge MCP", () => {
 		const createOptions = getCreatedAgentOptions();
 		expect(createOptions.local).toMatchObject({
 			cwd: process.cwd(),
-			settingSources: ["all"],
 			store: expect.any(Object),
 		});
+		expect(createOptions.local).not.toHaveProperty("settingSources");
 		expect(createOptions.mcpServers?.pi_tools?.type).toBe("http");
 		const url = new URL(getPiToolsMcpUrlFromAgentCreateOptions(createOptions));
 		expect(url.hostname).toBe("127.0.0.1");
@@ -196,7 +196,7 @@ describe("streamCursor bridge MCP", () => {
 	});
 
 
-	it("omits overlapping pi built-ins from Agent.create by default and exposes them with explicit opt-in", async () => {
+	it("exposes overlapping Pi built-ins by default and supports explicit opt-out", async () => {
 		registerBridgeForProviderTest({
 			active: ["read", "bash"],
 			tools: [
@@ -220,12 +220,12 @@ describe("streamCursor bridge MCP", () => {
 		});
 
 		await collectEvents(streamCursor(makeModel("composer-2"), makeContext(), { apiKey: "test-key" }));
-		expect(getCreatedAgentOptions().mcpServers).toBeUndefined();
+		expect(getCreatedAgentOptions().mcpServers?.pi_tools).toBeDefined();
 
 		await cursorPiToolBridgeTestUtils.resetRegisteredBridgeForTests();
 		await cursorProviderTestUtils.resetSessionCursorAgents();
 		vi.clearAllMocks();
-		process.env.PI_CURSOR_EXPOSE_BUILTIN_TOOLS = "1";
+		process.env.PI_CURSOR_EXPOSE_BUILTIN_TOOLS = "0";
 		registerBridgeForProviderTest({
 			active: ["read", "bash"],
 			tools: [
@@ -240,7 +240,7 @@ describe("streamCursor bridge MCP", () => {
 		});
 
 		await collectEvents(streamCursor(makeModel("composer-2"), makeContext(), { apiKey: "test-key" }));
-		expect(getCreatedAgentOptions().mcpServers?.pi_tools?.type).toBe("http");
+		expect(getCreatedAgentOptions().mcpServers).toBeUndefined();
 	});
 
 	it("omits bridge MCP servers from Agent.create when disabled or when the active snapshot is empty", async () => {
@@ -336,9 +336,9 @@ describe("streamCursor bridge MCP", () => {
 		const createOptions = getCreatedAgentOptions();
 		const { client, transport } = await connectMcpClient(getPiToolsMcpUrlFromAgentCreateOptions(createOptions));
 		try {
-			const readCallPromise = client.callTool({ name: "pi__read", arguments: { path: "README.md" } });
-			const bashCallPromise = client.callTool({ name: "pi__bash", arguments: { command: "pwd" } });
-			onDelta?.({ update: { type: "tool-call-started", callId: "mcp-read", toolCall: { name: "mcp", args: { toolName: "pi__read" } } } });
+			const readCallPromise = client.callTool({ name: "read", arguments: { path: "README.md" } });
+			const bashCallPromise = client.callTool({ name: "bash", arguments: { command: "pwd" } });
+			onDelta?.({ update: { type: "tool-call-started", callId: "mcp-read", toolCall: { name: "mcp", args: { toolName: "read" } } } });
 			onDelta?.({
 				update: {
 					type: "tool-call-completed",
@@ -349,7 +349,7 @@ describe("streamCursor bridge MCP", () => {
 					},
 				},
 			});
-			onDelta?.({ update: { type: "tool-call-started", callId: "mcp-read-step", toolCall: { name: "mcp", args: { toolName: "pi__read" } } } });
+			onDelta?.({ update: { type: "tool-call-started", callId: "mcp-read-step", toolCall: { name: "mcp", args: { toolName: "read" } } } });
 			onStep?.({
 				step: {
 					type: "toolCall",
@@ -360,7 +360,7 @@ describe("streamCursor bridge MCP", () => {
 					},
 				} as unknown as Parameters<NonNullable<import("@cursor/sdk").SendOptions["onStep"]>>[0]["step"],
 			});
-			onDelta?.({ update: { type: "tool-call-started", callId: "mcp-bash-start-only", toolCall: { name: "mcp", args: { toolName: "pi__bash" } } } });
+			onDelta?.({ update: { type: "tool-call-started", callId: "mcp-bash-start-only", toolCall: { name: "mcp", args: { toolName: "bash" } } } });
 
 			const firstEvents = await firstEventsPromise;
 			const firstDone = getDoneEvent(firstEvents);
@@ -497,7 +497,7 @@ describe("streamCursor bridge MCP", () => {
 		const { client, transport } = await connectMcpClient(getPiToolsMcpUrlFromAgentCreateOptions(getCreatedAgentOptions()));
 		try {
 			vi.useFakeTimers();
-			const mcp = client.callTool({ name: "pi__cursor_ask_question", arguments: { question: "Pick one", options: ["Yes", "No"], allowCustom: false } }, { timeout: 600_000 });
+			const mcp = client.callTool({ name: "cursor_ask_question", arguments: { question: "Pick one", options: ["Yes", "No"], allowCustom: false } }, { timeout: 600_000 });
 			void mcp.catch(() => {}); // Baseline causal probes can reject before the assertion fails.
 			let firstEvents: Awaited<typeof first> | undefined;
 			void first.then((events) => { firstEvents = events; });
@@ -568,7 +568,7 @@ describe("streamCursor bridge MCP", () => {
 		const { client, transport } = await connectMcpClient(getPiToolsMcpUrlFromAgentCreateOptions(createOptions));
 		try {
 			vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
-			const callErrorPromise = client.callTool({ name: "pi__read", arguments: { path: "README.md" } }).catch((error: unknown) => error);
+			const callErrorPromise = client.callTool({ name: "read", arguments: { path: "README.md" } }).catch((error: unknown) => error);
 			const firstEvents = await firstEventsPromise;
 			const firstDone = getDoneEvent(firstEvents);
 

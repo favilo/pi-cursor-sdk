@@ -22,7 +22,7 @@ const TOOL_TAIL_GUARD = [
 	"Exact-output requests: output exactly the requested text; no preamble or checks unless asked.",
 	"Tools: call available Cursor SDK/MCP tools; never print tool cards as assistant text.",
 	"Do not comment on GitHub issues or PRs unless the user asked.",
-	"For MCP work and delegation, prefer matching exposed pi__* tools using their listed names, schemas, and prompt guidelines; use Cursor-configured MCP or Cursor-native subagents only when the matching pi tool is not exposed or unavailable.",
+	"Use the exposed Pi tools by their listed names, schemas, and prompt guidelines; Cursor-configured MCP and Cursor-native subagents are unavailable unless explicitly enabled.",
 ].join("\n");
 
 describe("buildCursorPrompt", () => {
@@ -462,18 +462,18 @@ describe("buildCursorPrompt", () => {
 		expect(compactPrompt.text).toContain("Reply with code only.");
 		expect(compactPrompt.text).toContain("User: def add(a, b):");
 		expect(compactPrompt.text).not.toContain("Bridged pi tools:");
-		expect(compactPrompt.text).not.toContain("Use pi__cursor_ask_question");
-		expect(compactPrompt.text).not.toContain("Exposed pi__* bridge tools");
-		expect(compactPrompt.text).not.toContain("prefer matching exposed pi__* tools");
+		expect(compactPrompt.text).not.toContain("Use cursor_ask_question");
+		expect(compactPrompt.text).not.toContain("Exposed Pi bridge tools");
+		expect(compactPrompt.text).not.toContain("Use the exposed Pi tools by their listed names");
 		expect(defaultPrompt.text.length - compactPrompt.text.length).toBeGreaterThan(100);
 
 		const planPrompt = buildCursorPrompt(ctx, { agentMode: "plan", includePiBridgeGuidance: false });
 		expect(planPrompt.text).toContain("Cursor SDK mode is plan for this run");
-		expect(planPrompt.text).not.toContain("Exposed pi__* bridge tools");
+		expect(planPrompt.text).not.toContain("Exposed Pi bridge tools");
 		const incrementalPlanPrompt = buildCursorIncrementalPrompt(ctx, { agentMode: "plan", includePiBridgeGuidance: false });
 		expect(incrementalPlanPrompt.text).toContain("Cursor SDK mode is plan for this run");
-		expect(incrementalPlanPrompt.text).not.toContain("Exposed pi__* bridge tools");
-		expect(incrementalPlanPrompt.text).not.toContain("prefer matching exposed pi__* tools");
+		expect(incrementalPlanPrompt.text).not.toContain("Exposed Pi bridge tools");
+		expect(incrementalPlanPrompt.text).not.toContain("Use the exposed Pi tools by their listed names");
 	});
 
 	it("keeps pi-bridge framing when context tools are present or unknown", () => {
@@ -485,13 +485,13 @@ describe("buildCursorPrompt", () => {
 		const withTools = buildCursorPrompt({ messages: [{ role: "user", content: "test", timestamp: 1 }], tools: [readTool] });
 		const unknownTools = buildCursorPrompt({ messages: [{ role: "user", content: "test", timestamp: 1 }] });
 
-		expect(withTools.text).toContain("For exposed pi bridge tools");
-		expect(withTools.text).not.toContain("Use pi__cursor_ask_question");
-		expect(unknownTools.text).toContain("For exposed pi bridge tools");
-		expect(unknownTools.text).not.toContain("Use pi__cursor_ask_question");
+		expect(withTools.text).toContain("Call exposed Pi bridge tools by their listed names");
+		expect(withTools.text).not.toContain("Use cursor_ask_question");
+		expect(unknownTools.text).toContain("Call exposed Pi bridge tools by their listed names");
+		expect(unknownTools.text).not.toContain("Use cursor_ask_question");
 
 		const unknownToolsPlan = buildCursorPrompt({ messages: [{ role: "user", content: "test", timestamp: 1 }] }, { agentMode: "plan" });
-		expect(unknownToolsPlan.text).toContain("Exposed pi__* bridge tools");
+		expect(unknownToolsPlan.text).toContain("Exposed Pi bridge tools");
 	});
 
 	it("instructs Cursor not to claim web search without an actual Cursor web tool", () => {
@@ -502,12 +502,12 @@ describe("buildCursorPrompt", () => {
 		const result = buildCursorPrompt(ctx);
 		expect(result.text.indexOf("Cursor SDK tool boundary:")).toBeLessThan(result.text.indexOf("System instructions from pi:"));
 		expect(result.text).toContain("pi history names, replay labels, and transcript names are not callable");
-		expect(result.text).toContain("call pi__* MCP names");
+		expect(result.text).toContain("Call exposed Pi bridge tools by their listed names");
 		expect(result.text).toContain("not pi card/history names");
 		expect(result.text).toContain("Do not claim pi-side or WebSearch/WebFetch tools");
 		expect(result.text).toContain("Do not comment on GitHub issues or PRs unless the user asked");
-		expect(result.text).not.toContain("Use pi__cursor_ask_question");
-		expect(result.text).toContain("prefer matching exposed pi__* tools using their listed names, schemas, and prompt guidelines");
+		expect(result.text).not.toContain("Use cursor_ask_question");
+		expect(result.text).toContain("Use the exposed Pi tools by their listed names, schemas, and prompt guidelines");
 		expect(result.text).not.toContain("Pi bridge contract:");
 		expect(result.text).not.toContain("do not use SwitchMode");
 	});
@@ -519,7 +519,7 @@ describe("buildCursorPrompt", () => {
 
 		expect(bootstrap.text.match(/Cursor SDK mode is plan for this run/g)).toHaveLength(1);
 		expect(bootstrap.text).toContain("Safe/read-only shell commands");
-		expect(bootstrap.text).toContain("Exposed pi__* bridge tools are also callable in plan mode");
+		expect(bootstrap.text).toContain("Exposed Pi bridge tools are also callable by their listed names in plan mode");
 		expect(incremental.text.match(/Cursor SDK mode is plan for this run/g)).toHaveLength(1);
 		expect(buildCursorPrompt(context).text).not.toContain("Cursor SDK mode is plan for this run");
 	});

@@ -39,7 +39,6 @@ import {
 	recordCursorNativeToolDisplay,
 } from "../src/cursor-native-tool-display-state.js";
 import { CURSOR_ASK_QUESTION_TOOL_NAME } from "../src/cursor-question-tool.js";
-import { CURSOR_ACTIVATE_SKILL_TOOL_NAME } from "../src/cursor-skill-tool.js";
 
 describe("extension native Cursor tool replay", () => {
 	afterEach(resetIndexExtensionTestState);
@@ -58,7 +57,7 @@ describe("extension native Cursor tool replay", () => {
 
 		await extensionFactory(pi);
 
-		expect(pi._tools.map((tool) => tool.name)).toEqual([CURSOR_ASK_QUESTION_TOOL_NAME, CURSOR_ACTIVATE_SKILL_TOOL_NAME]);
+		expect(pi._tools.map((tool) => tool.name)).toEqual([CURSOR_ASK_QUESTION_TOOL_NAME]);
 		expect(canRenderCursorToolNatively("grep")).toBe(false);
 	});
 
@@ -91,7 +90,7 @@ describe("extension native Cursor tool replay", () => {
 				createExtensionTestContext({ cwd: secondDir }),
 			);
 
-			expect(pi.registerTool).toHaveBeenCalledTimes(10);
+			expect(pi.registerTool).toHaveBeenCalledTimes(9);
 			expect(result.content).toEqual([{ type: "text", text: "from second cwd\n" }]);
 		} finally {
 			rmSync(firstDir, { recursive: true, force: true });
@@ -501,11 +500,11 @@ describe("extension native Cursor tool replay", () => {
 			model: makeHarnessModel("openai-codex", "openai-codex-responses", "gpt-5.5"),
 		});
 
-		expect(pi._tools.map((tool) => tool.name)).toEqual([CURSOR_ASK_QUESTION_TOOL_NAME, CURSOR_ACTIVATE_SKILL_TOOL_NAME]);
+		expect(pi._tools.map((tool) => tool.name)).toEqual([CURSOR_ASK_QUESTION_TOOL_NAME]);
 		expect(canRenderCursorToolNatively("cursor")).toBe(false);
 		expect(canRenderCursorToolNatively("edit")).toBe(false);
 		expect(canRenderCursorToolNatively("write")).toBe(false);
-		expect(pi.registerTool).toHaveBeenCalledTimes(2);
+		expect(pi.registerTool).toHaveBeenCalledTimes(1);
 		expect(pi._activeToolNames()).toEqual(["read", "bash", "edit", "write"]);
 
 		await pi.runModelSelect(makeModel("composer-2.5"));
@@ -618,7 +617,7 @@ describe("extension native Cursor tool replay", () => {
 			await extensionFactory(pi);
 			await pi.runSessionStart();
 
-			expect(pi._tools.map((tool) => tool.name)).toEqual([CURSOR_ASK_QUESTION_TOOL_NAME, CURSOR_ACTIVATE_SKILL_TOOL_NAME]);
+			expect(pi._tools.map((tool) => tool.name)).toEqual([CURSOR_ASK_QUESTION_TOOL_NAME]);
 			expect(canRenderCursorToolNatively("read")).toBe(false);
 		},
 	);
@@ -646,7 +645,6 @@ describe("extension native Cursor tool replay", () => {
 
 		expect(pi._tools.map((tool) => tool.name)).toEqual([
 			CURSOR_ASK_QUESTION_TOOL_NAME,
-			CURSOR_ACTIVATE_SKILL_TOOL_NAME,
 			"grep",
 			"find",
 			"ls",
@@ -676,9 +674,7 @@ describe("extension native Cursor tool replay", () => {
 			await extensionFactory(pi);
 			await pi.runSessionStart({ cwd: dir });
 
-			const kept = pi._tools.filter(
-				(tool) => tool.name === CURSOR_ASK_QUESTION_TOOL_NAME || tool.name === CURSOR_ACTIVATE_SKILL_TOOL_NAME,
-			);
+			const kept = pi._tools.filter((tool) => tool.name === CURSOR_ASK_QUESTION_TOOL_NAME);
 			pi._tools.length = 0;
 			pi._tools.push(...kept);
 

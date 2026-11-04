@@ -46,7 +46,7 @@ export const SCENARIOS = {
 		},
 		promptTemplate: `Native visual matrix.
 
-Use Cursor-native tools only. Do not use pi__ tools.
+Use Cursor-native tools only. Do not use  tools.
 On Windows/PowerShell shell commands, do not use &&; if you add a cd command, separate commands with a semicolon (;).
 
 Steps:
@@ -133,14 +133,14 @@ NATIVE_MATRIX_OK package=<name> grep=<yes/no> find=<yes/no> list=<yes/no> shell=
 		},
 		promptTemplate: `Bridge visual matrix.
 
-Use pi bridge tools only. Use exact pi__ names.
+Use pi bridge tools only. Use exact  names.
 
-You must make exactly three pi bridge tool calls before your final answer: pi__bash, pi__read, then pi__read. Do not answer until all three calls complete.
+You must make exactly three pi bridge tool calls before your final answer: bash, read, then read. Do not answer until all three calls complete.
 
 Steps:
-1. call pi__bash with command: {{shellSmoke}}
-2. call pi__read on ./package.json.
-3. call pi__read on ./definitely-missing-platform-smoke-file.txt.
+1. call bash with command: {{shellSmoke}}
+2. call read on ./package.json.
+3. call read on ./definitely-missing-platform-smoke-file.txt.
 4. answer exactly:
 BRIDGE_MATRIX_OK bash_ok=<yes/no> read_ok=<yes/no> read_missing_error=<yes/no>`,
 		finalMarker: "BRIDGE_MATRIX_OK bash_ok=yes",
@@ -191,7 +191,7 @@ BRIDGE_MATRIX_OK bash_ok=<yes/no> read_ok=<yes/no> read_missing_error=<yes/no>`,
 		},
 		promptTemplate: `Abort cleanup matrix.
 
-Call pi__bash with command:
+Call bash with command:
 {{longRunning}}
 
 Do not answer until the tool completes.`,

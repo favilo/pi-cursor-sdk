@@ -363,7 +363,8 @@ function notifyInvalidCursorModeIfCursorActive(ctx: Pick<ExtensionContext, "hasU
 function formatEffectiveCursorSettingSourcesLabel(raw: string | undefined = process.env[CURSOR_SETTING_SOURCES_ENV]): string {
 	const effective = resolveCursorSettingSources(raw);
 	const effectiveLabel = effective === undefined ? "none" : effective.join(",");
-	const rawLabel = raw?.trim() ? raw.trim() : `(unset → ${DEFAULT_CURSOR_SETTING_SOURCES.join(",")})`;
+	const defaultLabel = DEFAULT_CURSOR_SETTING_SOURCES.length > 0 ? DEFAULT_CURSOR_SETTING_SOURCES.join(",") : "none";
+	const rawLabel = raw?.trim() ? raw.trim() : `(unset → ${defaultLabel})`;
 	return `${rawLabel} (effective: ${effectiveLabel})`;
 }
 
@@ -399,7 +400,7 @@ function formatCursorToolsDebugReport(
 		lines.push("Pi bridge: disabled (PI_CURSOR_PI_TOOL_BRIDGE=0).");
 	} else if (bridgeSnapshot) {
 		const names = bridgeSnapshot.tools.map((tool) => tool.mcpToolName).sort();
-		lines.push(`Pi bridge exposure eligibility: ${names.length ? names.join(", ") : "no eligible pi__* tools"}.`);
+		lines.push(`Pi bridge exposure eligibility: ${names.length ? names.join(", ") : "no eligible Pi tools"}.`);
 	}
 	lines.push(
 		"This snapshot does not prove a run's endpoint attachment, MCP initialization, catalog fetch, or tool calls.",

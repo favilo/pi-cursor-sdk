@@ -140,11 +140,11 @@ describe("installed Pi provider context boundary", () => {
 		// provider replay allowlist (the established stock-Pi contract).
 		expect(mockedCreate.mock.calls[0][0]?.mcpServers?.pi_tools).toBeDefined();
 		const text = sdkSend.mock.calls[0][0].text;
-		expect(text).toContain("For exposed pi bridge tools");
-		expect(text).toContain("prefer matching exposed pi__* tools using their listed names, schemas, and prompt guidelines");
-		expect(text).not.toContain("Use pi__cursor_ask_question");
-		expect(text).toContain("Pi bridge: call exposed pi__* MCP names");
-		expect(text).toContain("pi__audit_tool");
+		expect(text).toContain("Call exposed Pi bridge tools by their listed names");
+		expect(text).toContain("Use only exposed Pi tools by their listed names");
+		expect(text).not.toContain("Use cursor_ask_question");
+		expect(text).toContain("Pi bridge: call exposed Pi tools by name");
+		expect(text).toContain("audit_tool");
 	});
 
 	it("preserves bridge filters and the callable manifest at the provider boundary", async () => {
@@ -158,16 +158,16 @@ describe("installed Pi provider context boundary", () => {
 		expect((await send({ systemPrompt: "BRIDGE_SYSTEM", tools: [tool], messages: [user] })).stopReason).toBe("stop");
 		const { client, transport } = await connectMcpClient(getPiToolsMcpUrlFromAgentCreateOptions(getCreatedAgentOptions()));
 		try {
-			expect((await client.listTools()).tools.map((entry) => entry.name)).toEqual(["pi__audit_tool"]);
+			expect((await client.listTools()).tools.map((entry) => entry.name)).toEqual(["audit_tool", "read"]);
 		} finally {
 			await client.close();
 			await transport.close();
 		}
 		const text = sdkSend.mock.calls[0][0].text;
-		expect(text).toContain("pi__audit_tool");
-		expect(text).not.toContain("pi__read");
-		expect(text).not.toContain("pi__cursor");
-		expect(text).not.toContain("pi__inactive");
+		expect(text).toContain("audit_tool");
+		expect(text).toContain("read");
+		expect(text).not.toContain("audit_tool, cursor");
+		expect(text).not.toContain("inactive");
 	});
 
 	it("reboots when the current tool declaration changes", async () => {
@@ -197,7 +197,7 @@ describe("installed Pi provider context boundary", () => {
 		expect(text).toContain("CLOUD_SYSTEM");
 		expect(text.includes("HISTORY")).toBe(policy === "bootstrap");
 		expect(text).toContain("LATEST");
-		expect(text).not.toContain("pi__");
+		expect(text).not.toContain("Pi bridge");
 	});
 
 	it("sanitizes the actual host prompt and deduplicates only overlapping context files", () => {
@@ -222,7 +222,7 @@ describe("installed Pi provider context boundary", () => {
 		expect(prompt).toContain("<available_skills>");
 		const local = resolveCursorSkillSystemPrompt(prompt, makeModel(), options);
 		expect(local.match(/<available_skills>/g)).toHaveLength(1);
-		expect(local).toContain("pi__cursor_activate_skill");
+		expect(local).toContain("cursor_activate_skill");
 		const cloud = resolveCursorSkillSystemPrompt(prompt, makeModel(), options, "cloud");
 		expect(cloud).not.toContain("/fixture/SKILL.md");
 		expect(cloud).not.toContain("<skills>");
@@ -266,7 +266,7 @@ describe("installed Pi provider context boundary", () => {
 		expect(text).not.toContain("OLD");
 		expect(text).not.toContain("REMOVE");
 		expect(getActiveContextToolNames(received[0])).toEqual(new Set());
-		expect(buildCursorPrompt(received[0], { includePiBridgeGuidance: false, includePiAskQuestionGuidance: false }).text).toBe(text);
+		expect(buildCursorPrompt(received[0], { includePiBridgeGuidance: false, includePiAskQuestionGuidance: false, nativeToolsEnabled: false }).text).toBe(text);
 		const state = { bootstrapped: true, contextFingerprint: computeCursorContextFingerprint(received[0]) };
 		expect(shouldBootstrapCursorContext(state, received[0])).toBe(false);
 		expect(computeCursorContextFingerprint(structuredClone(received[0]))).toBe(state.contextFingerprint);

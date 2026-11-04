@@ -41,7 +41,7 @@ export function getCursorPlanModeToolGuidanceText(
 			: "Safe/read-only shell commands that inspect or print information are allowed when Cursor chooses to call Shell; do not say Shell is blocked by plan mode and then call it anyway.",
 		options.includePiBridgeGuidance === false
 			? undefined
-			: "Exposed pi__* bridge tools are also callable in plan mode when the user asks for them or they are needed to answer.",
+			: "Exposed Pi bridge tools are also callable by their listed names in plan mode when needed.",
 	].filter((line): line is string => line !== undefined).join("\n");
 }
 
@@ -57,7 +57,7 @@ export function getCursorToolTailGuardText(
 		"Tools: call available Cursor SDK/MCP tools; never print tool cards as assistant text.",
 		"Do not comment on GitHub issues or PRs unless the user asked.",
 		options.includePiBridgeGuidance === false ? undefined : options.nativeToolsEnabled === false
-			? "Use only exposed pi__* MCP names for Pi work; native task/subagents are disabled."
+			? "Use only exposed Pi tools by their listed names; native task/subagents are disabled."
 			: CURSOR_PI_BRIDGE_PREFERENCE_TEXT,
 	].filter((line): line is string => line !== undefined).join("\n");
 }
@@ -72,10 +72,10 @@ function getCursorToolBoundaryText(
 		"Call only Cursor SDK/MCP tools exposed in this run; pi history names, replay labels, and transcript names are not callable.",
 		options.nativeToolsEnabled === false ? "Cursor native tools (including task/subagents): disabled. Only exposed MCP tools are callable." : undefined,
 		includePiBridgeGuidance
-			? "For exposed pi bridge tools, call pi__* MCP names, not pi card/history names."
+			? "Call exposed Pi bridge tools by their listed names, not pi card/history names."
 			: undefined,
 		"Do not claim pi-side or WebSearch/WebFetch tools unless Cursor ran an equivalent tool.",
-		includePiAskQuestionGuidance ? "Use pi__cursor_ask_question only if the user asked to be prompted." : undefined,
+		includePiAskQuestionGuidance ? "Use cursor_ask_question only if the user asked to be prompted." : undefined,
 		getCursorPlanModeToolGuidanceText(options.agentMode, { includePiBridgeGuidance, nativeToolsEnabled: options.nativeToolsEnabled }),
 		"Images: only latest user images are sent; ask to reattach prior images.",
 	].filter((line): line is string => line !== undefined);

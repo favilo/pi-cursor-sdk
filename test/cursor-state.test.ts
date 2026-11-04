@@ -602,11 +602,11 @@ describe("Cursor runtime state", () => {
 			expect(ctx.ui.notify).toHaveBeenCalledWith(expect.stringContaining("PI_CURSOR_PI_TOOL_BRIDGE: enabled"), "info");
 			expect(ctx.ui.notify).toHaveBeenCalledWith(expect.stringContaining("PI_CURSOR_SETTING_SOURCES: none (effective: none)"), "info");
 			expect(ctx.ui.notify).toHaveBeenCalledWith(expect.stringContaining("current registry snapshot; not a live run"), "info");
-			expect(ctx.ui.notify).toHaveBeenCalledWith(expect.stringContaining("pi__custom_bridge_tool"), "info");
+			expect(ctx.ui.notify).toHaveBeenCalledWith(expect.stringContaining("custom_bridge_tool"), "info");
 			expect(ctx.ui.notify).toHaveBeenCalledWith(expect.stringContaining("Cursor host/MCP"), "info");
 			expect(ctx.ui.notify).toHaveBeenCalledWith(expect.stringContaining("Pi tool toggles affect pi tools/bridge exposure only"), "info");
 			const report = vi.mocked(ctx.ui.notify).mock.calls[0][0];
-			expect(report).toContain("Pi bridge exposure eligibility: pi__custom_bridge_tool");
+			expect(report).toContain("Pi bridge exposure eligibility: custom_bridge_tool");
 			expect(report).toContain("does not prove a run's endpoint attachment, MCP initialization, catalog fetch, or tool calls");
 			expect(report).toContain("mcp_initialized records a validated notifications/initialized receipt");
 			expect(report).toContain("mcp_tools_list records catalog-handler output (toolCount), not client/model consumption");
@@ -645,10 +645,10 @@ describe("Cursor runtime state", () => {
 		registerCursorRuntimeControls(pi);
 		const ctx = createExtensionTestContext();
 		await pi.runCommand("cursor-tools", "", { ui: ctx.ui, hasUI: true });
-		expect(ctx.ui.notify).toHaveBeenLastCalledWith(expect.stringContaining("Pi bridge exposure eligibility: no eligible pi__* tools."), "info");
+		expect(ctx.ui.notify).toHaveBeenLastCalledWith(expect.stringContaining("Pi bridge exposure eligibility: no eligible Pi tools."), "info");
 		vi.stubEnv("PI_CURSOR_EXPOSE_BUILTIN_TOOLS", "1");
 		await pi.runCommand("cursor-tools", "", { ui: ctx.ui, hasUI: true });
-		expect(ctx.ui.notify).toHaveBeenLastCalledWith(expect.stringContaining("Pi bridge exposure eligibility: pi__read."), "info");
+		expect(ctx.ui.notify).toHaveBeenLastCalledWith(expect.stringContaining("Pi bridge exposure eligibility: read."), "info");
 	});
 
 	it.each([

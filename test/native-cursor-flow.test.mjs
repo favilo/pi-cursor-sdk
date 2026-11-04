@@ -80,7 +80,7 @@ test("registered Cursor provider preserves native bridge, replay, usage, queues,
     await session.prompt("BRIDGE_FIXTURE REPLAY_FIXTURE");
     assert.equal(bridgeCalls, 1, JSON.stringify({ errors, assistantMessages: session.messages.filter((message) => message.role === "assistant") }));
     assert.ok(fetchCalls > 0);
-    assert.ok(state.bridgeCatalog.includes("pi__fixture_bridge"));
+    assert.ok(state.bridgeCatalog.includes("fixture_bridge"));
     assert.equal(state.bridgeResults[0].isError, undefined);
     assert.equal(state.created.length, 1, "bridge and native replay must drain the same Cursor agent/run");
     let entries = manager.getEntries();

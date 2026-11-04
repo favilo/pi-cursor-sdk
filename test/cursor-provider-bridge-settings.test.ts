@@ -9,7 +9,7 @@ describe("streamCursor bridge settings", () => {
 	beforeEach(resetCursorProviderTestState);
 
 	it.each([
-		["default", undefined, ["all"]],
+		["default", undefined, undefined],
 		["disabled", "none", undefined],
 		["explicit all", "all", ["all"]],
 		["narrowed", "project,user", ["project", "user"]],

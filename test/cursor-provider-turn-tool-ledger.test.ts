@@ -32,7 +32,7 @@ describe("CursorToolCompletionLedger", () => {
 		const ledger = new CursorToolCompletionLedger();
 		ledger.registerStartedToolCall("shell-a", { name: "shell", args: { command: "echo one" } });
 		expect(ledger.removeStartedToolCallForStep({ name: "bash", args: { command: "echo two" } }, "other")).toBeUndefined();
-		expect(ledger.removeStartedToolCallForStep({ name: "pi__bash", args: { command: "echo one" } }, "other")).toBeUndefined();
+		expect(ledger.removeStartedToolCallForStep({ name: "bridge_bash", args: { command: "echo one" } }, "other")).toBeUndefined();
 		expect(ledger.hasStartedToolCall("shell-a")).toBe(true);
 	});
 });

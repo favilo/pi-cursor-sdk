@@ -77,12 +77,12 @@ describe("streamCursor session agent", () => {
 				const { client, transport } = await connectMcpClient(getPiToolsMcpUrlFromAgentCreateOptions(getCreatedAgentOptions()));
 				try {
 					const listed = await client.listTools();
-					expect(listed.tools.map((tool) => tool.name)).toEqual(["pi__delegate", "pi__agent_runs"]);
+					expect(listed.tools.map((tool) => tool.name)).toEqual(["delegate", "agent_runs"]);
 					for (const [index, tool] of tools.entries()) {
 						expect(listed.tools[index].inputSchema).toEqual(tool.parameters);
 						expect(listed.tools[index].description).toContain(tool.description);
 						expect(listed.tools[index].description).toContain(tool.promptGuidelines![0]);
-						expect(listed.tools[index].description).toContain(`Call MCP name ${listed.tools[index].name} (pi tool: ${tool.name}).`);
+						expect(listed.tools[index].description).toContain(`Call tool ${listed.tools[index].name}. Pi executes it as ${tool.name} through its normal tool and permission pipeline.`);
 					}
 					catalogChecked = true;
 				} finally {
@@ -90,8 +90,7 @@ describe("streamCursor session agent", () => {
 					await transport.close();
 				}
 			}
-			expect(message.text).toContain("For MCP work and delegation, prefer matching exposed pi__* tools using their listed names, schemas, and prompt guidelines");
-			expect(message.text).not.toMatch(/pi__subagent|pi__mcp\b/);
+			expect(message.text).toContain("Use only exposed Pi tools by their listed names");
 			return asMockCursorRun({
 				id: "run-1",
 				agentId: "agent-1",
@@ -129,10 +128,10 @@ describe("streamCursor session agent", () => {
 		const secondPrompt = mockSend.mock.calls[1]?.[0] as { text?: string };
 		expect(firstPrompt.text).toContain("Cursor SDK tool boundary:");
 		expect(firstPrompt.text).toContain("User: Hello");
-		expect(firstPrompt.text).toContain("pi__agent_runs, pi__delegate");
+		expect(firstPrompt.text).toContain("agent_runs, delegate");
 		expect(secondPrompt.text).toContain("User: Follow up");
 		expect(secondPrompt.text).not.toContain("User: Hello");
-		expect(secondPrompt.text).toContain("prefer matching exposed pi__* tools");
+		expect(secondPrompt.text).toContain("Use only exposed Pi tools by their listed names");
 	});
 
 	it("recreates the session agent when context diverges and sends a full bootstrap prompt", async () => {
@@ -299,8 +298,8 @@ describe("streamCursor session agent", () => {
 		const createOptions = getCreatedAgentOptions();
 		const { client, transport } = await connectMcpClient(getPiToolsMcpUrlFromAgentCreateOptions(createOptions));
 		try {
-			const readCallPromise = client.callTool({ name: "pi__read", arguments: { path: "README.md" } });
-			turn2OnDelta?.({ update: { type: "tool-call-started", callId: "mcp-read", toolCall: { name: "mcp", args: { toolName: "pi__read" } } } });
+			const readCallPromise = client.callTool({ name: "read", arguments: { path: "README.md" } });
+			turn2OnDelta?.({ update: { type: "tool-call-started", callId: "mcp-read", toolCall: { name: "mcp", args: { toolName: "read" } } } });
 
 			const secondEvents = await secondEventsPromise;
 			const secondDone = getDoneEvent(secondEvents);
@@ -357,7 +356,7 @@ describe("streamCursor session agent", () => {
 		expect(firstPrompt.text).toContain("Callable tool surfaces this run:");
 		expect(firstPrompt.text).toContain("Cursor SDK tool boundary:");
 		expect(firstPrompt.text).toContain("See callable surfaces below.");
-		expect(firstPrompt.text).toContain("Cursor host/MCP");
-		expect(firstPrompt.text).not.toContain("pi__cursor_ask_question");
+		expect(firstPrompt.text).toContain("Cursor native tools (including task/subagents): disabled");
+		expect(firstPrompt.text).not.toContain("cursor_ask_question");
 	});
 });

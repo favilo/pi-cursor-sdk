@@ -2,7 +2,7 @@
  * Card detector — records stable visible evidence regions from rendered terminal output.
  *
  * This is intentionally stricter than a raw text-marker search: prompt lines such as
- * "call pi__read" must not satisfy card assertions. Per-card screenshots come from
+ * "call read" must not satisfy card assertions. Per-card screenshots come from
  * visual-evidence.mjs; this module writes the legacy cards.json/index.html inventory.
  */
 

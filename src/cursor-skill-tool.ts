@@ -9,6 +9,7 @@ import type {
 } from "@earendil-works/pi-coding-agent";
 import { Type } from "typebox";
 import { arePiToolsDisabled } from "./cursor-active-tools.js";
+import { parseEnvBoolean } from "./cursor-env-boolean.js";
 import type { CursorRuntime } from "./cursor-config.js";
 import { isCursorModel } from "./cursor-model.js";
 import { registerCursorModelLifecycle, type CursorModelLifecycleExtensionApi } from "./cursor-model-lifecycle.js";
@@ -16,7 +17,12 @@ import { resolveCursorPiToolBridgeEnabled } from "./cursor-pi-tool-bridge-env.js
 import { resolveEffectiveCursorConfigForContext } from "./cursor-runtime-state.js";
 
 export const CURSOR_ACTIVATE_SKILL_TOOL_NAME = "cursor_activate_skill";
-export const CURSOR_ACTIVATE_SKILL_MCP_NAME = "pi__cursor_activate_skill";
+export const CURSOR_ACTIVATE_SKILL_MCP_NAME = CURSOR_ACTIVATE_SKILL_TOOL_NAME;
+export const CURSOR_SKILL_TOOL_ENV = "PI_CURSOR_SKILL_TOOL";
+
+export function resolveCursorSkillToolEnabled(env: Record<string, string | undefined> = process.env): boolean {
+	return parseEnvBoolean(env[CURSOR_SKILL_TOOL_ENV], false);
+}
 
 const AVAILABLE_SKILLS_SECTION_PATTERN = /<skills>\nThe following skills provide specialized instructions for specific tasks\.[\s\S]*?<\/available_skills>\n<\/skills>|\n\nThe following skills provide specialized instructions for specific tasks\.[\s\S]*?<\/available_skills>/;
 const MAX_SKILL_RESOURCES = 80;
@@ -148,7 +154,12 @@ function wrapSkillContent(skill: Skill, content: string, resources: readonly str
 	].join("\n");
 }
 
-export function registerCursorSkillTool(pi: CursorSkillToolExtensionApi): void {
+export function registerCursorSkillTool(
+	pi: CursorSkillToolExtensionApi,
+	env: Record<string, string | undefined> = process.env,
+): void {
+	const skillToolEnabled = resolveCursorSkillToolEnabled(env);
+	if (!skillToolEnabled) return;
 	let currentSkillsByName = new Map<string, Skill>();
 
 	function setCurrentSkills(skills: readonly Skill[] | undefined): void {
@@ -161,7 +172,7 @@ export function registerCursorSkillTool(pi: CursorSkillToolExtensionApi): void {
 
 	function syncCursorSkillToolForModel(model: ExtensionContext["model"], runtime: CursorRuntime): void {
 		const activeToolNames = new Set(pi.getActiveTools());
-		const shouldBeActive = !arePiToolsDisabled(pi) && runtime === "local" && isCursorModel(model)
+		const shouldBeActive = skillToolEnabled && !arePiToolsDisabled(pi) && runtime === "local" && isCursorModel(model)
 			&& resolveCursorPiToolBridgeEnabled() && currentSkillsByName.size > 0;
 		const alreadyActive = activeToolNames.has(CURSOR_ACTIVATE_SKILL_TOOL_NAME);
 		if (shouldBeActive === alreadyActive) return;
@@ -234,6 +245,7 @@ export function registerCursorSkillTool(pi: CursorSkillToolExtensionApi): void {
 			syncCursorSkillToolForModel(ctx.model, runtime);
 		},
 		beforeAgentStart: (event, ctx) => {
+			if (!skillToolEnabled) return undefined;
 			const cursorModel = isCursorModel(ctx.model);
 			const runtime = resolveEffectiveRuntimeForSkillLifecycle(cursorModel, ctx);
 			if (cursorModel && runtime === "local") {

@@ -37,10 +37,10 @@ export function buildCursorToolManifestText(options: {
 		if (!piBridgeEnabled) {
 			lines.push("- Pi bridge: disabled (PI_CURSOR_PI_TOOL_BRIDGE=0).");
 		} else if (bridgeTools.length === 0) {
-			lines.push("- Pi bridge: no pi__* tools exposed this run.");
+			lines.push("- Pi bridge: no Pi tools exposed this run.");
 		} else {
 			const names = [...bridgeTools.map((tool) => tool.mcpToolName)].sort().join(", ");
-			lines.push(`- Pi bridge: call exposed pi__* MCP names (${names}); pi shows real pi names.`);
+			lines.push(`- Pi bridge: call exposed Pi tools by name (${names}); execution remains inside Pi's tool pipeline.`);
 		}
 	}
 	lines.push("- Not callable: cursor-replay-* IDs, pi history names, transcript labels.");

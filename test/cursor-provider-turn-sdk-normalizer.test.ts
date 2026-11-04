@@ -30,7 +30,7 @@ describe("resolveCursorToolCompletion", () => {
 		const resolution = resolveCursorToolCompletion({
 			source: "delta",
 			callId: "bridge-1",
-			toolCall: { toolName: "pi__run_test" },
+			toolCall: { toolName: "run_test" },
 			ledger,
 			shellOutput,
 			liveRun: {
@@ -43,7 +43,7 @@ describe("resolveCursorToolCompletion", () => {
 			identity: "cursor-tool:bridge-1",
 		});
 		expect(resolveCursorToolCompletion({
-			source: "delta", callId: "bridge-1", toolCall: { toolName: "pi__run_test" }, ledger, shellOutput,
+			source: "delta", callId: "bridge-1", toolCall: { toolName: "run_test" }, ledger, shellOutput,
 		}).action).toBe("handle");
 	});
 
@@ -55,7 +55,7 @@ describe("resolveCursorToolCompletion", () => {
 		const resolution = resolveCursorToolCompletion({
 			source: "delta",
 			callId: "call-1",
-			toolCall: { toolName: "pi__cursor_ask_question" },
+			toolCall: { toolName: "cursor_ask_question" },
 			ledger,
 			shellOutput,
 			liveRun: { bridgeRun: { isBridgeMcpToolCall } } as never,

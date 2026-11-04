@@ -8,4 +8,8 @@ describe("native tool surface environment", () => {
 	it.each(["1", "TRUE", "on", "yes", "enabled"])("explicitly enables Cursor native tools for %s", value => {
 		expect(resolveCursorNativeToolsEnabled({ PI_CURSOR_NATIVE_TOOLS: value })).toBe(true);
 	});
+	it("retains required Cursor host tools for explicitly selected cloud runtime", () => {
+		expect(resolveCursorNativeToolsEnabled({}, "cloud")).toBe(true);
+		expect(resolveCursorNativeToolsEnabled({ PI_CURSOR_NATIVE_TOOLS: "0" }, "cloud")).toBe(false);
+	});
 });

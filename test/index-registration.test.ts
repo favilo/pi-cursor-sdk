@@ -203,10 +203,9 @@ describe("extension registration and discovery", () => {
 			"cursor-refresh-config",
 			expect.objectContaining({ description: expect.stringContaining("Refresh filesystem Cursor config") }),
 		);
-		expect(pi.registerTool).toHaveBeenCalledTimes(10);
+		expect(pi.registerTool).toHaveBeenCalledTimes(9);
 		expect(pi._tools.map((tool) => tool.name)).toEqual([
 			CURSOR_ASK_QUESTION_TOOL_NAME,
-			CURSOR_ACTIVATE_SKILL_TOOL_NAME,
 			"grep",
 			"find",
 			"ls",
@@ -217,10 +216,6 @@ describe("extension registration and discovery", () => {
 			"write",
 		]);
 		expect(pi._tools.find((tool) => tool.name === CURSOR_ASK_QUESTION_TOOL_NAME)?.promptSnippet).toContain("Do not prompt");
-		const skillTool = pi._tools.find((tool) => tool.name === CURSOR_ACTIVATE_SKILL_TOOL_NAME);
-		expect(skillTool?.description).toContain("Agent Skill");
-		expect(skillTool?.promptSnippet).toBeUndefined();
-		expect(skillTool?.promptGuidelines).toBeUndefined();
 		const replayTool = pi._tools.find((tool) => tool.name === "cursor");
 		expect(replayTool?.promptSnippet).toBeUndefined();
 		expect(replayTool?.promptGuidelines).toBeUndefined();
@@ -334,7 +329,7 @@ describe("extension registration and discovery", () => {
 		await extensionFactory(pi);
 		await pi.runSessionStart({ model: undefined });
 
-		expect(pi._tools.map((tool) => tool.name)).toEqual([CURSOR_ASK_QUESTION_TOOL_NAME, CURSOR_ACTIVATE_SKILL_TOOL_NAME]);
+		expect(pi._tools.map((tool) => tool.name)).toEqual([CURSOR_ASK_QUESTION_TOOL_NAME]);
 		expect(pi._activeToolNames()).not.toContain("cursor");
 		expect(pi._activeToolNames()).not.toContain("grep");
 		expect(pi._activeToolNames()).not.toContain(CURSOR_ASK_QUESTION_TOOL_NAME);
@@ -346,7 +341,7 @@ describe("extension registration and discovery", () => {
 		expect(pi._activeToolNames()).toContain("cursor");
 		expect(pi._activeToolNames()).toContain("grep");
 		expect(pi._activeToolNames()).toContain(CURSOR_ASK_QUESTION_TOOL_NAME);
-		expect(buildCursorPiToolBridgeSnapshot(pi).piToolNameToMcpToolName.get(CURSOR_ASK_QUESTION_TOOL_NAME)).toBe("pi__cursor_ask_question");
+		expect(buildCursorPiToolBridgeSnapshot(pi).piToolNameToMcpToolName.get(CURSOR_ASK_QUESTION_TOOL_NAME)).toBe("cursor_ask_question");
 
 		pi.setActiveTools(["read", "bash", "edit", "write"]);
 		expect(pi._activeToolNames()).not.toContain("cursor");
@@ -399,7 +394,7 @@ describe("extension registration and discovery", () => {
 		await pi.runBeforeAgentStart({ mode: "print", hasUI: false, model: makeModel("composer-2.5") });
 		await pi.runTurnStart({ mode: "print", hasUI: false, model: makeModel("composer-2.5") });
 
-		expect(pi._tools.map((tool) => tool.name)).toEqual([CURSOR_ASK_QUESTION_TOOL_NAME, CURSOR_ACTIVATE_SKILL_TOOL_NAME]);
+		expect(pi._tools.map((tool) => tool.name)).toEqual([CURSOR_ASK_QUESTION_TOOL_NAME]);
 		expect(pi._activeToolNames()).toContain(CURSOR_ASK_QUESTION_TOOL_NAME);
 		expect(pi._activeToolNames()).not.toContain("cursor");
 		expect(pi._activeToolNames()).not.toContain("grep");
@@ -544,7 +539,7 @@ describe("extension registration and discovery", () => {
 		expect(pi._activeToolNames()).toContain(CURSOR_ASK_QUESTION_TOOL_NAME);
 
 		const snapshot = buildCursorPiToolBridgeSnapshot(pi);
-		expect(snapshot.piToolNameToMcpToolName.get(CURSOR_ASK_QUESTION_TOOL_NAME)).toBe("pi__cursor_ask_question");
+		expect(snapshot.piToolNameToMcpToolName.get(CURSOR_ASK_QUESTION_TOOL_NAME)).toBe("cursor_ask_question");
 		expect(snapshot.tools.find((tool) => tool.piToolName === CURSOR_ASK_QUESTION_TOOL_NAME)?.description).toContain("Ask the user");
 	});
 
@@ -567,7 +562,7 @@ describe("extension registration and discovery", () => {
 		expect(pi._activeToolNames()).not.toContain(CURSOR_ASK_QUESTION_TOOL_NAME);
 		const snapshot = buildCursorPiToolBridgeSnapshot(pi);
 		expect(snapshot.piToolNameToMcpToolName.has(CURSOR_ASK_QUESTION_TOOL_NAME)).toBe(false);
-		expect(snapshot.piToolNameToMcpToolName.get(bridgeToolName)).toBe(`pi__${bridgeToolName}`);
+		expect(snapshot.piToolNameToMcpToolName.get(bridgeToolName)).toBe(`${bridgeToolName}`);
 	});
 
 	it("honors PI_CURSOR_PI_TOOL_BRIDGE=0 at the extension registration path", async () => {
@@ -580,7 +575,7 @@ describe("extension registration and discovery", () => {
 		await pi.runSessionStart();
 
 		expect(cursorPiToolBridgeTestUtils.getRegisteredBridgeForTests()?.isEnabled()).toBe(false);
-		expect(pi.setActiveTools).not.toHaveBeenCalled();
+		expect(pi._activeToolNames()).not.toContain(CURSOR_ACTIVATE_SKILL_TOOL_NAME);
 	});
 
 	it.each([

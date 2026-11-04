@@ -2,9 +2,12 @@ import { parseEnvBoolean } from "./cursor-env-boolean.js";
 
 export const CURSOR_NATIVE_TOOLS_ENV = "PI_CURSOR_NATIVE_TOOLS";
 
-/** Default preserves the SDK toolset; false selects the public MCP-only main loop. */
-export function resolveCursorNativeToolsEnabled(env: Record<string, string | undefined> = process.env): boolean {
-	return parseEnvBoolean(env[CURSOR_NATIVE_TOOLS_ENV], true);
+/** Local runs default to Pi-backed MCP-only execution; explicit cloud runs retain their required host tools. */
+export function resolveCursorNativeToolsEnabled(
+	env: Record<string, string | undefined> = process.env,
+	runtime: "local" | "cloud" = "local",
+): boolean {
+	return parseEnvBoolean(env[CURSOR_NATIVE_TOOLS_ENV], runtime === "cloud");
 }
 
 export function assertCursorNativeToolsRuntime(runtime: "local" | "cloud", nativeToolsEnabled: boolean): void {
