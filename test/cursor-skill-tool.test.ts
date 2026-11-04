@@ -1,7 +1,7 @@
 import { mkdtemp, mkdir, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { afterEach, describe, expect, it, onTestFinished } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, onTestFinished } from "vitest";
 import type { BeforeAgentStartEvent, ExtensionContext, Skill } from "@earendil-works/pi-coding-agent";
 import {
 	CURSOR_ACTIVATE_SKILL_MCP_NAME,
@@ -20,8 +20,13 @@ import {
 	makeModel,
 } from "./helpers/pi-harness.js";
 
+beforeEach(() => {
+	process.env.PI_CURSOR_SKILL_TOOL = "1";
+});
+
 afterEach(() => {
 	delete process.env.PI_CURSOR_RUNTIME;
+	delete process.env.PI_CURSOR_SKILL_TOOL;
 });
 
 function makeSkill(overrides: Partial<Skill> & Pick<Skill, "name" | "filePath">): Skill {
@@ -95,7 +100,25 @@ describe("resolveCursorSkillSystemPrompt", () => {
 });
 
 describe("registerCursorSkillTool", () => {
-	it("adds a bridgeable activation tool for Cursor runs with visible pi skills", async () => {
+	it("does not add a plugin-specific skill tool unless explicitly enabled", async () => {
+		delete process.env.PI_CURSOR_SKILL_TOOL;
+		const pi = createPiHarness({ activeTools: ["read"] });
+		registerCursorSkillTool(pi);
+		const event = {
+			type: "before_agent_start",
+			messageType: "user",
+			prompt: "hello",
+			systemPrompt: "Use the read tool to load matching skills.",
+			systemPromptOptions: createDefaultSystemPromptOptions("/repo"),
+		} satisfies BeforeAgentStartEvent & { messageType: "user" };
+		const result = await pi.invokeEvent("before_agent_start", event, { model: makeModel("composer-2.5"), cwd: "/repo" });
+
+		expect(result).toBeUndefined();
+		expect(pi._tools.some((tool) => tool.name === CURSOR_ACTIVATE_SKILL_TOOL_NAME)).toBe(false);
+		expect(pi._activeToolNames()).toEqual(["read"]);
+	});
+
+	it("adds a bridgeable activation tool for Cursor runs with visible pi skills when enabled", async () => {
 		const dir = await mkdtemp(join(tmpdir(), "pi-cursor-skill-"));
 		onTestFinished(() => rm(dir, { recursive: true, force: true }));
 		const skillDir = join(dir, "global-skill");

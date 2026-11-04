@@ -151,7 +151,7 @@ describe("cursor pi tool bridge flags and snapshots", () => {
 		await __testUtils.resetRegisteredBridgeForTests();
 	});
 
-	it("defaults the bridge on and built-in overlap exposure off with explicit env controls", () => {
+	it("defaults the bridge and built-in Pi tool exposure on with explicit env controls", () => {
 		expect(resolveCursorPiToolBridgeEnabled({})).toBe(true);
 		expect(resolveCursorPiToolBridgeEnabled({ PI_CURSOR_PI_TOOL_BRIDGE: "0" })).toBe(false);
 		expect(resolveCursorPiToolBridgeEnabled({ PI_CURSOR_PI_TOOL_BRIDGE: "false" })).toBe(false);
@@ -160,10 +160,10 @@ describe("cursor pi tool bridge flags and snapshots", () => {
 		expect(resolveCursorPiToolBridgeEnabled({ PI_CURSOR_PI_TOOL_BRIDGE: "1" })).toBe(true);
 		expect(resolveCursorPiToolBridgeEnabled({ PI_CURSOR_PI_TOOL_BRIDGE: "true" })).toBe(true);
 
-		expect(resolveCursorPiToolBridgeBuiltinsEnabled({})).toBe(false);
+		expect(resolveCursorPiToolBridgeBuiltinsEnabled({})).toBe(true);
 		expect(resolveCursorPiToolBridgeBuiltinsEnabled({ PI_CURSOR_EXPOSE_BUILTIN_TOOLS: "0" })).toBe(false);
 		expect(resolveCursorPiToolBridgeBuiltinsEnabled({ PI_CURSOR_EXPOSE_BUILTIN_TOOLS: "off" })).toBe(false);
-		expect(resolveCursorPiToolBridgeBuiltinsEnabled({ PI_CURSOR_EXPOSE_BUILTIN_TOOLS: "unexpected" })).toBe(false);
+		expect(resolveCursorPiToolBridgeBuiltinsEnabled({ PI_CURSOR_EXPOSE_BUILTIN_TOOLS: "unexpected" })).toBe(true);
 		expect(resolveCursorPiToolBridgeBuiltinsEnabled({ PI_CURSOR_EXPOSE_BUILTIN_TOOLS: "1" })).toBe(true);
 		expect(resolveCursorPiToolBridgeBuiltinsEnabled({ PI_CURSOR_EXPOSE_BUILTIN_TOOLS: "true" })).toBe(true);
 
@@ -197,16 +197,16 @@ describe("cursor pi tool bridge flags and snapshots", () => {
 		const snapshot = buildCursorPiToolBridgeSnapshot(pi);
 
 		expect(snapshot.tools.map((tool) => tool.piToolName)).toEqual(["custom_read", "sem_reindex"]);
-		expect(snapshot.tools.map((tool) => tool.mcpToolName)).toEqual(["pi__custom_read", "pi__sem_reindex"]);
-		expect(snapshot.mcpToolNameToPiToolName.get("pi__custom_read")).toBe("custom_read");
-		expect(snapshot.piToolNameToMcpToolName.get("sem_reindex")).toBe("pi__sem_reindex");
+		expect(snapshot.tools.map((tool) => tool.mcpToolName)).toEqual(["custom_read", "sem_reindex"]);
+		expect(snapshot.mcpToolNameToPiToolName.get("custom_read")).toBe("custom_read");
+		expect(snapshot.piToolNameToMcpToolName.get("sem_reindex")).toBe("sem_reindex");
 		expect(snapshot.tools[0].description).toBe("Custom read files");
 		expect(snapshot.tools[0].inputSchema).toBe(readParameters);
 		expect(snapshot.tools[1].inputSchema).toBe(dynamicParameters);
 		expect(pi.setActiveTools).not.toHaveBeenCalled();
 	});
 
-	it("hides overlapping pi tool names by default while keeping non-overlapping tools", () => {
+	it("exposes active Pi built-ins by default and allows explicit overlap suppression", () => {
 		const tools = [
 			createToolInfo("read", "Replay-wrapped read tool"),
 			createBuiltinToolInfo("bash", Type.Object({}), "Run shell commands"),
@@ -223,14 +223,10 @@ describe("cursor pi tool bridge flags and snapshots", () => {
 			tools,
 		});
 
-		const defaultSnapshot = buildCursorPiToolBridgeSnapshot(pi);
-		expect(defaultSnapshot.tools.map((tool) => tool.piToolName)).toEqual(["todo", "sem_reindex"]);
-		expect(defaultSnapshot.tools.map((tool) => tool.mcpToolName)).toEqual(["pi__todo", "pi__sem_reindex"]);
-
-		const optInSnapshot = buildCursorPiToolBridgeSnapshot(pi, {
+		const defaultSnapshot = buildCursorPiToolBridgeSnapshot(pi, {
 			exposeOverlappingBuiltins: true,
 		});
-		expect(optInSnapshot.tools.map((tool) => tool.piToolName)).toEqual([
+		expect(defaultSnapshot.tools.map((tool) => tool.piToolName)).toEqual([
 			"read",
 			"bash",
 			"write",
@@ -241,10 +237,18 @@ describe("cursor pi tool bridge flags and snapshots", () => {
 			"todo",
 			"sem_reindex",
 		]);
+		expect(defaultSnapshot.tools.map((tool) => tool.mcpToolName)).toEqual([
+			"read", "bash", "write", "edit", "grep", "find", "ls", "todo", "sem_reindex",
+		]);
+
+		const suppressedSnapshot = buildCursorPiToolBridgeSnapshot(pi, {
+			exposeOverlappingBuiltins: false,
+		});
+		expect(suppressedSnapshot.tools.map((tool) => tool.piToolName)).toEqual(["todo", "sem_reindex"]);
 		expect(pi.setActiveTools).not.toHaveBeenCalled();
 	});
 
-	it("exposes native replay-registered edit and write when opt-in builtins are enabled", () => {
+	it("exposes native replay-registered edit and write when builtins are enabled", () => {
 		nativeToolDisplayTestUtils.registerNativeToolNameForTests("edit");
 		nativeToolDisplayTestUtils.registerNativeToolNameForTests("write");
 		try {

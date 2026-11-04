@@ -7,8 +7,8 @@ import {
 describe("resolveCursorSettingSources", () => {
 	it("resolves defaults, enable/disable aliases, and source lists", () => {
 		const cases = [
-			[[undefined, "", "all", "1", "true", "on"], ["all"]],
-			[["none", "0", "false", "off", "omit", "disabled", ",", ",,", "  ,  ,  "], undefined],
+			[[undefined, "", "none", "0", "false", "off", "omit", "disabled", ",", ",,", "  ,  ,  "], undefined],
+			[["all", "1", "true", "on"], ["all"]],
 			[["project,user"], ["project", "user"]],
 		] as const;
 		for (const [inputs, expected] of cases) {
